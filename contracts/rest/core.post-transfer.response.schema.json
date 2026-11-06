@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core.post-transfer.response.schema.json",
+  "title": "Core post-transfer response (COBOL adapter -> gateway)",
+  "description": "Marshals from TRANSFER-REPLY in copybook/transfer-io.cpy. PENDING when approval is required.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transfer_id",
+    "status"
+  ],
+  "properties": {
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "POSTED",
+        "PENDING",
+        "REJECTED"
+      ]
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    },
+    "debit_posting": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    },
+    "credit_posting": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    },
+    "from_balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "to_balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "account_type": {
+      "$ref": "common.schema.json#/$defs/AccountType"
+    },
+    "tier_label": {
+      "$ref": "common.schema.json#/$defs/TierLabel"
+    }
+  }
+}

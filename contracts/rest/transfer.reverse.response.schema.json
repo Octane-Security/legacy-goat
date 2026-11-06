@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transfer.reverse.response.schema.json",
+  "title": "Reverse response (console -> caller)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transfer_id",
+    "status"
+  ],
+  "properties": {
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/TransferStatus"
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    },
+    "reversal_debit": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    },
+    "reversal_credit": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    }
+  }
+}

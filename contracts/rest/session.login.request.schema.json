@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "session.login.request.schema.json",
+  "title": "Session login request (caller -> console)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "staff_id",
+    "password"
+  ],
+  "properties": {
+    "staff_id": {
+      "$ref": "common.schema.json#/$defs/StaffId"
+    },
+    "password": {
+      "$ref": "common.schema.json#/$defs/Password"
+    }
+  }
+}

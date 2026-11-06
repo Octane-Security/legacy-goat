@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core.reverse.response.schema.json",
+  "title": "Core reverse response (COBOL -> gateway)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transfer_id",
+    "status"
+  ],
+  "properties": {
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "REVERSED",
+        "REJECTED"
+      ]
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    },
+    "reversal_debit": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    },
+    "reversal_credit": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    }
+  }
+}

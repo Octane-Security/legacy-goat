@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transfer.approve.response.schema.json",
+  "title": "Approve response (console -> caller)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transfer_id",
+    "status"
+  ],
+  "properties": {
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/TransferStatus"
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    },
+    "debit_posting": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    },
+    "credit_posting": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    },
+    "from_balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "to_balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    }
+  }
+}
