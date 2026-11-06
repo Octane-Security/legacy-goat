@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gl.post-document.response.schema.json",
+  "title": "GL document post response (ABAP ICF service -> gateway)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["gl_doc_id", "reference", "status"],
+  "properties": {
+    "gl_doc_id": { "$ref": "common.schema.json#/$defs/GlDocId" },
+    "reference": { "$ref": "common.schema.json#/$defs/TransferId" },
+    "status": { "type": "string", "enum": ["POSTED", "REJECTED"] }
+  }
+}

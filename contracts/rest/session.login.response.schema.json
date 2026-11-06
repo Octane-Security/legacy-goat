@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "session.login.response.schema.json",
+  "title": "Session login response (console -> caller)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "token",
+    "staff_id",
+    "role",
+    "branch",
+    "expires_at"
+  ],
+  "properties": {
+    "token": {
+      "$ref": "common.schema.json#/$defs/Token"
+    },
+    "staff_id": {
+      "$ref": "common.schema.json#/$defs/StaffId"
+    },
+    "role": {
+      "$ref": "common.schema.json#/$defs/Role"
+    },
+    "branch": {
+      "$ref": "common.schema.json#/$defs/Branch"
+    },
+    "expires_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    }
+  }
+}

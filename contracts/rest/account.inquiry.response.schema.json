@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "account.inquiry.response.schema.json",
+  "title": "Account inquiry response (gateway -> console)",
+  "description": "The gateway returns the core reply unchanged.",
+  "$ref": "core.inquiry.response.schema.json"
+}

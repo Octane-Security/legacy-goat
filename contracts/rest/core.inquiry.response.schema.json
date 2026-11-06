@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core.inquiry.response.schema.json",
+  "title": "Core account inquiry response (COBOL adapter -> gateway)",
+  "description": "Marshals from INQUIRY-REPLY in copybook/core-ops.cpy. The account fields are present only when result is OK.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "account_id",
+    "result"
+  ],
+  "properties": {
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "result": {
+      "$ref": "common.schema.json#/$defs/OpResult"
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    },
+    "customer_id": {
+      "$ref": "common.schema.json#/$defs/CustomerId"
+    },
+    "customer_name": {
+      "$ref": "common.schema.json#/$defs/Name"
+    },
+    "branch": {
+      "$ref": "common.schema.json#/$defs/Branch"
+    },
+    "account_type": {
+      "$ref": "common.schema.json#/$defs/AccountType"
+    },
+    "currency": {
+      "$ref": "common.schema.json#/$defs/Currency"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/AccountStatus"
+    },
+    "balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "opened_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    }
+  }
+}

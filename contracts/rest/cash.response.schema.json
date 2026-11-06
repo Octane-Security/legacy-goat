@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cash.response.schema.json",
+  "title": "Teller cash response (gateway -> console)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transfer_id",
+    "status",
+    "account_id"
+  ],
+  "properties": {
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "POSTED",
+        "REJECTED"
+      ]
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    },
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "cash_account": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "gl_doc_id": {
+      "$ref": "common.schema.json#/$defs/GlDocId"
+    },
+    "report": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/PostingLine"
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core.approve.request.schema.json",
+  "title": "Core approve request (gateway -> COBOL)",
+  "description": "COBOL enforces maker-checker: actor must be SUPERVISOR and != the transfer's initiator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transfer_id",
+    "actor"
+  ],
+  "properties": {
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    },
+    "actor": {
+      "$ref": "common.schema.json#/$defs/Actor"
+    }
+  }
+}

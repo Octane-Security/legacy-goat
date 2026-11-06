@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core.approve.response.schema.json",
+  "title": "Core approve response (COBOL -> gateway)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transfer_id",
+    "status"
+  ],
+  "properties": {
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "POSTED",
+        "REJECTED"
+      ]
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    },
+    "debit_posting": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    },
+    "credit_posting": {
+      "$ref": "common.schema.json#/$defs/PostingId"
+    },
+    "from_balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "to_balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    }
+  }
+}
