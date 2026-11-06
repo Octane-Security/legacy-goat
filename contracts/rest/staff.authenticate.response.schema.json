@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "staff.authenticate.response.schema.json",
+  "title": "Authenticate response (COBOL -> gateway)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "authenticated"
+  ],
+  "properties": {
+    "authenticated": {
+      "type": "boolean"
+    },
+    "role": {
+      "$ref": "common.schema.json#/$defs/Role"
+    },
+    "branch": {
+      "$ref": "common.schema.json#/$defs/Branch"
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    }
+  }
+}

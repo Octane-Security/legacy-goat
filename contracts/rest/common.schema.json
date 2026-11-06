@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common.schema.json",
+  "title": "Shared types",
+  "$defs": {
+    "AccountId": {
+      "type": "string",
+      "pattern": "^[0-9]{12}$"
+    },
+    "CustomerId": {
+      "type": "string",
+      "pattern": "^[0-9]{10}$"
+    },
+    "TransferId": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]{1,20}$"
+    },
+    "PostingId": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]{1,20}$"
+    },
+    "GlDocId": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]{1,20}$"
+    },
+    "Money": {
+      "type": "string",
+      "pattern": "^-?[0-9]{1,13}\\.[0-9]{2}$"
+    },
+    "Currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "AccountType": {
+      "type": "string",
+      "enum": [
+        "CHK",
+        "SAV",
+        "GL"
+      ]
+    },
+    "AccountStatus": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "FROZEN",
+        "CLOSED"
+      ]
+    },
+    "Direction": {
+      "type": "string",
+      "enum": [
+        "D",
+        "C"
+      ]
+    },
+    "RiskRating": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    "StaffId": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]{1,10}$"
+    },
+    "Role": {
+      "type": "string",
+      "enum": [
+        "TELLER",
+        "SUPERVISOR"
+      ]
+    },
+    "Branch": {
+      "type": "string",
+      "pattern": "^[0-9]{4}$"
+    },
+    "Token": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]{16,64}$"
+    },
+    "Password": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "TransferStatus": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "POSTED",
+        "REVERSED",
+        "REJECTED"
+      ]
+    },
+    "MaintenanceAction": {
+      "type": "string",
+      "enum": [
+        "FREEZE",
+        "UNFREEZE"
+      ]
+    },
+    "CashAction": {
+      "type": "string",
+      "enum": [
+        "DEPOSIT",
+        "WITHDRAW"
+      ]
+    },
+    "OpResult": {
+      "type": "string",
+      "enum": [
+        "OK",
+        "REJECTED"
+      ]
+    },
+    "Timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "Name": {
+      "type": "string",
+      "maxLength": 40
+    },
+    "Description": {
+      "type": "string",
+      "maxLength": 40
+    },
+    "PostingLine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "posting_id",
+        "transfer_id",
+        "account_id",
+        "direction",
+        "amount",
+        "currency",
+        "posted_at"
+      ],
+      "properties": {
+        "posting_id": {
+          "$ref": "common.schema.json#/$defs/PostingId"
+        },
+        "transfer_id": {
+          "$ref": "common.schema.json#/$defs/TransferId"
+        },
+        "account_id": {
+          "$ref": "common.schema.json#/$defs/AccountId"
+        },
+        "direction": {
+          "$ref": "common.schema.json#/$defs/Direction"
+        },
+        "amount": {
+          "$ref": "common.schema.json#/$defs/Money"
+        },
+        "currency": {
+          "$ref": "common.schema.json#/$defs/Currency"
+        },
+        "posted_at": {
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        }
+      }
+    },
+    "StatementLine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "posting_id",
+        "transfer_id",
+        "direction",
+        "amount",
+        "posted_at",
+        "balance_after"
+      ],
+      "properties": {
+        "posting_id": {
+          "$ref": "common.schema.json#/$defs/PostingId"
+        },
+        "transfer_id": {
+          "$ref": "common.schema.json#/$defs/TransferId"
+        },
+        "direction": {
+          "$ref": "common.schema.json#/$defs/Direction"
+        },
+        "amount": {
+          "$ref": "common.schema.json#/$defs/Money"
+        },
+        "posted_at": {
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        },
+        "description": {
+          "$ref": "common.schema.json#/$defs/Description"
+        },
+        "balance_after": {
+          "$ref": "common.schema.json#/$defs/Money"
+        }
+      }
+    },
+    "GlLine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "account_id",
+        "direction",
+        "amount"
+      ],
+      "properties": {
+        "account_id": {
+          "$ref": "common.schema.json#/$defs/AccountId"
+        },
+        "direction": {
+          "$ref": "common.schema.json#/$defs/Direction"
+        },
+        "amount": {
+          "$ref": "common.schema.json#/$defs/Money"
+        }
+      }
+    },
+    "Actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "staff_id",
+        "role",
+        "branch"
+      ],
+      "properties": {
+        "staff_id": {
+          "$ref": "common.schema.json#/$defs/StaffId"
+        },
+        "role": {
+          "$ref": "common.schema.json#/$defs/Role"
+        },
+        "branch": {
+          "$ref": "common.schema.json#/$defs/Branch"
+        }
+      }
+    },
+    "TierLabel": {
+      "type": "string",
+      "maxLength": 16
+    }
+  }
+}

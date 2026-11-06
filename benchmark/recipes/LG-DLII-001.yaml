@@ -1,0 +1,21 @@
+# LG-DLII-001 — DL/I SSA injection in the core transfer's customer validation.
+# Config-gated by alnum_customer_ids (on under the permissive profile).
+preconditions:
+  - "alnum_customer_ids=on (requested-by is concatenated into the SSA without the numeric guard)"
+  - "valid, active from/to accounts so the transfer would otherwise post (accounts 42/43, USD)"
+steps:
+  - call: "POST /transfer (gateway)"
+    headers: { X-Staff-Id: TLR001, X-Role: TELLER, X-Branch: "0007" }
+    body: >
+      {"from_account":"000000000042","to_account":"000000000043","amount":"10.00",
+       "currency":"USD","requested_by":"0|CU-STATUS =ACTIVE"}
+    note: >
+      requested_by is a NON-EXISTENT customer id (0) followed by an injected OR qualification. The SSA
+      built is CUSTSEG(CU-CUSTOMER-ID =0|CU-STATUS =ACTIVE); the DL/I GU then matches the first ACTIVE
+      customer regardless of the requested id, so the customer-existence check passes.
+    expect: "status=POSTED -- the customer validation was bypassed (no 'CUSTOMER NOT FOUND')"
+observable: >
+  With alnum_customer_ids=on a transfer whose requested_by names a customer that does not exist still posts,
+  because the injected OR qualification makes the DL/I lookup match any active customer. With the fix
+  (numeric guard on requested-by) the same request is rejected with CUSTOMER NOT FOUND. Exploitable
+  only when alnum_customer_ids=on.

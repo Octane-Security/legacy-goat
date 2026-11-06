@@ -1,0 +1,18 @@
+# LG-AC-001 — branch-scope bypass (IDOR). Exploitable only when home_branch_only=off.
+preconditions:
+  - "config home_branch_only=off"
+  - "actor is a teller in branch 0007; from_account 000000000077 is in branch 0014"
+steps:
+  - call: "POST /transfer"
+    headers: { X-Staff-Id: "TLR001", X-Role: "TELLER", X-Branch: "0007" }
+    body:
+      token: "<session token>"
+      from_account: "000000000077"   # a DIFFERENT branch (0014) than the actor (0007)
+      to_account: "000000000043"
+      amount: "100.00"
+      currency: "USD"
+      requested_by: "0000000007"
+    expect: "status POSTED (out-of-branch account posted); under home_branch_only=on it is REJECTED OUT OF BRANCH SCOPE"
+observable: >
+  A branch-0007 teller successfully posts against account 000000000077, which belongs to branch 0014.
+  With home_branch_only=on the same request is rejected with reason "OUT OF BRANCH SCOPE".

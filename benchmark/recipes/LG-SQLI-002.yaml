@@ -1,0 +1,19 @@
+# LG-SQLI-002 — SQL injection in the SAS report PROC SQL EXPLICIT pass-through.
+# Config-gated by as_of_dates (on under the permissive profile).
+preconditions:
+  - "as_of_dates=on (the as_of contract check + escaping are skipped for the pass-through)"
+  - "at least one posted row exists in the LEDGER table (the happy-path flow posts several)"
+steps:
+  - call: "POST /report (SAS service)"
+    body: { transfer_id: "GHOST999", report_type: "POSTING", as_of: "x' OR '1'='1" }
+    note: >
+      transfer_id GHOST999 has no ledger rows, so a well-formed request would return none. as_of
+      carries the injection; it fits the 20-char as_of field. With as_of_dates=on it is spliced raw
+      into `where transfer_id = 'GHOST999' and posted_at <= 'x' OR '1'='1'`, which (AND binds tighter
+      than OR) reduces to a tautology and returns every LEDGER row.
+    expect: "rows[] is non-empty -- postings for transfers OTHER than GHOST999 are returned"
+observable: >
+  With as_of_dates=on the report for a non-existent transfer_id returns rows (all ledger
+  postings), proving the transfer_id scope was bypassed via the unvalidated as_of. With the fix (as_of
+  always contract-validated + quoted) the injection payload fails validation and the shim errors /
+  returns no rows. Exploitable only when as_of_dates=on.

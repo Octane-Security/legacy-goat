@@ -1,0 +1,651 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "legacy-goat-ground-truth",
+          "informationUri": "https://github.com/legacy-goat",
+          "version": "1",
+          "properties": {
+            "profile": "baseline"
+          },
+          "rules": [
+            {
+              "id": "sql-injection",
+              "name": "sql-injection",
+              "properties": {
+                "cwe": 89
+              }
+            },
+            {
+              "id": "business-logic",
+              "name": "business-logic",
+              "properties": {
+                "cwe": 840
+              }
+            },
+            {
+              "id": "broken-access-control",
+              "name": "broken-access-control",
+              "properties": {
+                "cwe": 862
+              }
+            },
+            {
+              "id": "os-command-injection",
+              "name": "os-command-injection",
+              "properties": {
+                "cwe": 78
+              }
+            },
+            {
+              "id": "broken-authentication",
+              "name": "broken-authentication",
+              "properties": {
+                "cwe": 384
+              }
+            },
+            {
+              "id": "numeric-overflow",
+              "name": "numeric-overflow",
+              "properties": {
+                "cwe": 190
+              }
+            },
+            {
+              "id": "improper-output-encoding",
+              "name": "improper-output-encoding",
+              "properties": {
+                "cwe": 116
+              }
+            },
+            {
+              "id": "path-traversal",
+              "name": "path-traversal",
+              "properties": {
+                "cwe": 22
+              }
+            },
+            {
+              "id": "hardcoded-secret",
+              "name": "hardcoded-secret",
+              "properties": {
+                "cwe": 760
+              }
+            },
+            {
+              "id": "sensitive-data-logging",
+              "name": "sensitive-data-logging",
+              "properties": {
+                "cwe": 532
+              }
+            },
+            {
+              "id": "server-side-request-forgery",
+              "name": "server-side-request-forgery",
+              "properties": {
+                "cwe": 918
+              }
+            },
+            {
+              "id": "dli-ssa-injection",
+              "name": "dli-ssa-injection",
+              "properties": {
+                "cwe": 943
+              }
+            },
+            {
+              "id": "out-of-bounds-read",
+              "name": "out-of-bounds-read",
+              "properties": {
+                "cwe": 125
+              }
+            },
+            {
+              "id": "xxe",
+              "name": "xxe",
+              "properties": {
+                "cwe": 611
+              }
+            },
+            {
+              "id": "cross-site-scripting",
+              "name": "cross-site-scripting",
+              "properties": {
+                "cwe": 79
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "sql-injection",
+          "level": "note",
+          "message": {
+            "text": "LG-SQLI-001: SQL injection in the single-query staff sign-on (SIGNON-BY-QUERY)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cobol/staffauth.cbl"
+                },
+                "region": {
+                  "startLine": 76,
+                  "endLine": 89
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-SQLI-001",
+            "cwe": 89,
+            "class": "sql-injection",
+            "module": "cobol",
+            "language": "COBOL",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "session_roaming=off"
+            }
+          }
+        },
+        {
+          "ruleId": "business-logic",
+          "level": "error",
+          "message": {
+            "text": "LG-BIZ-001: Negative-amount transfer reverses the money flow (missing positive-amount check)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cobol/postxfer.cbl"
+                },
+                "region": {
+                  "startLine": 85,
+                  "endLine": 86
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-BIZ-001",
+            "cwe": 840,
+            "class": "business-logic",
+            "module": "cobol",
+            "language": "COBOL",
+            "status": "exploitable",
+            "exploitable": true,
+            "detectable": true,
+            "gate": null
+          }
+        },
+        {
+          "ruleId": "broken-access-control",
+          "level": "note",
+          "message": {
+            "text": "LG-AC-001: Config-gated branch-scope bypass (IDOR) in the core post-transfer"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cobol/postxfer.cbl"
+                },
+                "region": {
+                  "startLine": 166,
+                  "endLine": 169
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-AC-001",
+            "cwe": 862,
+            "class": "broken-access-control",
+            "module": "cobol",
+            "language": "COBOL",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "home_branch_only=on"
+            }
+          }
+        },
+        {
+          "ruleId": "os-command-injection",
+          "level": "note",
+          "message": {
+            "text": "LG-CMDI-001: OS command injection via the SAS report-export %SYSEXEC label"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sas/postrpt.sas"
+                },
+                "region": {
+                  "startLine": 71,
+                  "endLine": 72
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-CMDI-001",
+            "cwe": 78,
+            "class": "os-command-injection",
+            "module": "sas",
+            "language": "SAS",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "report_archive=off"
+            }
+          }
+        },
+        {
+          "ruleId": "broken-authentication",
+          "level": "note",
+          "message": {
+            "text": "LG-AUTH-001: Weak, forgeable self-describing session token (no entropy, no server-side session)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pascal/console.pas"
+                },
+                "region": {
+                  "startLine": 413,
+                  "endLine": 449
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-AUTH-001",
+            "cwe": 384,
+            "class": "broken-authentication",
+            "module": "pascal",
+            "language": "Object Pascal",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "session_roaming=off"
+            }
+          }
+        },
+        {
+          "ruleId": "numeric-overflow",
+          "level": "error",
+          "message": {
+            "text": "LG-NUM-001: Integer overflow in the fee calculation (32-bit nint on a large amount)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "fortran/riskfee.f90"
+                },
+                "region": {
+                  "startLine": 31,
+                  "endLine": 32
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-NUM-001",
+            "cwe": 190,
+            "class": "numeric-overflow",
+            "module": "fortran",
+            "language": "Fortran",
+            "status": "exploitable",
+            "exploitable": true,
+            "detectable": true,
+            "gate": {
+              "data": "amount large enough to overflow int32 cents"
+            }
+          }
+        },
+        {
+          "ruleId": "improper-output-encoding",
+          "level": "note",
+          "message": {
+            "text": "LG-INJ-001: Improper output encoding of the reference into the GL posting response (JSON breakout)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "abap/zcl_gl_post.clas.abap"
+                },
+                "region": {
+                  "startLine": 104,
+                  "endLine": 112
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-INJ-001",
+            "cwe": 116,
+            "class": "improper-output-encoding",
+            "module": "abap",
+            "language": "ABAP",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "preformatted_refs=off"
+            }
+          }
+        },
+        {
+          "ruleId": "path-traversal",
+          "level": "note",
+          "message": {
+            "text": "LG-PATH-001: Path traversal in the console posting-receipt download endpoint"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pascal/console.pas"
+                },
+                "region": {
+                  "startLine": 1274,
+                  "endLine": 1277
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-PATH-001",
+            "cwe": 22,
+            "class": "path-traversal",
+            "module": "pascal",
+            "language": "Object Pascal",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "receipt_subfolders=off"
+            }
+          }
+        },
+        {
+          "ruleId": "hardcoded-secret",
+          "level": "note",
+          "message": {
+            "text": "LG-SECR-001: Hardcoded, shared credential-hashing salt checked into source"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cobol/signon.cpy"
+                },
+                "region": {
+                  "startLine": 2,
+                  "endLine": 2
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-SECR-001",
+            "cwe": 760,
+            "class": "hardcoded-secret",
+            "module": "cobol",
+            "language": "COBOL",
+            "status": "present",
+            "exploitable": false,
+            "detectable": true,
+            "gate": null
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "note",
+          "message": {
+            "text": "LG-LOG-001: Cleartext password written to the process log by the console audit path"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pascal/console.pas"
+                },
+                "region": {
+                  "startLine": 1092,
+                  "endLine": 1095
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-LOG-001",
+            "cwe": 532,
+            "class": "sensitive-data-logging",
+            "module": "pascal",
+            "language": "Object Pascal",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "signon_trace=off"
+            }
+          }
+        },
+        {
+          "ruleId": "sql-injection",
+          "level": "note",
+          "message": {
+            "text": "LG-SQLI-002: SQL injection in the SAS report PROC SQL EXPLICIT pass-through (unvalidated as_of)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sas/postrpt.sas"
+                },
+                "region": {
+                  "startLine": 39,
+                  "endLine": 44
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-SQLI-002",
+            "cwe": 89,
+            "class": "sql-injection",
+            "module": "sas",
+            "language": "SAS",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "as_of_dates=off"
+            }
+          }
+        },
+        {
+          "ruleId": "server-side-request-forgery",
+          "level": "note",
+          "message": {
+            "text": "LG-SSRF-001: Server-side request forgery in the console upstream-preview endpoint"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pascal/console.pas"
+                },
+                "region": {
+                  "startLine": 1330,
+                  "endLine": 1338
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-SSRF-001",
+            "cwe": 918,
+            "class": "server-side-request-forgery",
+            "module": "pascal",
+            "language": "Object Pascal",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "partner_preview=off"
+            }
+          }
+        },
+        {
+          "ruleId": "dli-ssa-injection",
+          "level": "note",
+          "message": {
+            "text": "LG-DLII-001: DL/I SSA injection in the core transfer customer validation"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cobol/postxfer.cbl"
+                },
+                "region": {
+                  "startLine": 206,
+                  "endLine": 219
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-DLII-001",
+            "cwe": 943,
+            "class": "dli-ssa-injection",
+            "module": "cobol",
+            "language": "COBOL",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "alnum_customer_ids=off"
+            }
+          }
+        },
+        {
+          "ruleId": "out-of-bounds-read",
+          "level": "note",
+          "message": {
+            "text": "LG-MEM-001: Out-of-bounds read of the settlement-tier table leaks an internal key"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cobol/postxfer.cbl"
+                },
+                "region": {
+                  "startLine": 140,
+                  "endLine": 145
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-MEM-001",
+            "cwe": 125,
+            "class": "out-of-bounds-read",
+            "module": "cobol",
+            "language": "COBOL",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "extended_tiers=off"
+            }
+          }
+        },
+        {
+          "ruleId": "xxe",
+          "level": "note",
+          "message": {
+            "text": "LG-XXE-001: XML external entity injection in the console settlement-advice import"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pascal/console.pas"
+                },
+                "region": {
+                  "startLine": 1387,
+                  "endLine": 1406
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-XXE-001",
+            "cwe": 611,
+            "class": "xxe",
+            "module": "pascal",
+            "language": "Object Pascal",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "correspondent_advices=off"
+            }
+          }
+        },
+        {
+          "ruleId": "cross-site-scripting",
+          "level": "note",
+          "message": {
+            "text": "LG-XSS-001: Reflected XSS in the console sign-on notice banner"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pascal/console.pas"
+                },
+                "region": {
+                  "startLine": 597,
+                  "endLine": 598
+                }
+              }
+            }
+          ],
+          "properties": {
+            "id": "LG-XSS-001",
+            "cwe": 79,
+            "class": "cross-site-scripting",
+            "module": "pascal",
+            "language": "Object Pascal",
+            "status": "unexploitable",
+            "exploitable": false,
+            "detectable": true,
+            "gate": {
+              "config": "rich_notices=off"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

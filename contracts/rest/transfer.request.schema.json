@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transfer.request.schema.json",
+  "title": "Transfer request (console -> gateway)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "token",
+    "from_account",
+    "to_account",
+    "amount",
+    "currency",
+    "requested_by"
+  ],
+  "properties": {
+    "token": {
+      "$ref": "common.schema.json#/$defs/Token"
+    },
+    "from_account": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "to_account": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "amount": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "currency": {
+      "$ref": "common.schema.json#/$defs/Currency"
+    },
+    "requested_by": {
+      "$ref": "common.schema.json#/$defs/CustomerId"
+    }
+  }
+}

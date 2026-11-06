@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transfer.approve.request.schema.json",
+  "title": "Approve a pending transfer (caller -> console)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "token",
+    "transfer_id"
+  ],
+  "properties": {
+    "token": {
+      "$ref": "common.schema.json#/$defs/Token"
+    },
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    }
+  }
+}

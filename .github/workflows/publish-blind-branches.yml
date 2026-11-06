@@ -1,0 +1,42 @@
+name: publish blind branches
+
+# On every push to main, regenerate the blind `vulnerable` and `fixed` branches from this repo's
+# tree and force-push them as orphan (single-commit, reset-history) branches of THIS repo.
+#
+# No secret: it force-pushes to its own repo with the automatic GITHUB_TOKEN (contents: write). The
+# whole branch generator lives in tooling/, which the generator strips from the blind branches (along
+# with benchmark/ and .github/), so the scanned branches are app-source-only.
+#
+# Atomic over patching: tooling/publish-branches.sh generates + clue-scan-gates BOTH trees before it
+# pushes either, so a patch/gate failure leaves the last-known-good branches untouched.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-blind-branches
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gate regression test (clue-scan, blind_strip, gen-blind)
+        run: python3 tooling/test_gate.py
+
+      - name: Regenerate + force-push blind branches (atomic)
+        env:
+          LG_DIR: ${{ github.workspace }}
+          REMOTE: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+        run: |
+          chmod +x tooling/*.sh
+          tooling/publish-branches.sh

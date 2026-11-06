@@ -1,0 +1,23 @@
+# LG-MEM-001 — out-of-bounds read of the settlement-tier table (leaks an internal key).
+# Config-gated by extended_tiers (on under the permissive profile).
+preconditions:
+  - "extended_tiers=on (the tier-index bounds clamp is dropped)"
+  - "amount >= 10000 so the derived tier index is 4 (one past the 3-entry table)"
+steps:
+  - call: "POST /post-transfer (COBOL core module, published port)"
+    body: >
+      {"transfer_id":"TMEM0000000000000001","from_account":"000000000042",
+       "to_account":"000000000043","amount":"50000.00","currency":"USD",
+       "requested_by":"0000000007","requested_at":"2026-01-01T00:00:00Z",
+       "actor":{"staff_id":"TLR001","role":"TELLER","branch":"0007"},
+       "require_approval_over":"10000.00"}
+    note: >
+      The tier is classified before any validation, so the amount alone drives the index. amount
+      50000 -> tier index 4; the WS-TIER-LABEL table OCCURS only 3, so WS-TIER-LABEL(4) reads the
+      contiguous WS-INTERNAL-ROUTE (GnuCOBOL does no subscript bounds check by default).
+    expect: "tier_label in the reply is the internal settlement key STLMT-KEY-41Z9X!, not a real tier name"
+observable: >
+  With extended_tiers=on the reply's tier_label is the adjacent internal settlement key
+  (STLMT-KEY-41Z9X!) rather than a real tier name (RETAIL/COMMERCIAL/TREASURY), because the
+  out-of-range subscript reads past the table into the following field. With the fix (index clamped
+  to 1..3) tier_label is TREASURY. Exploitable only when extended_tiers=on.

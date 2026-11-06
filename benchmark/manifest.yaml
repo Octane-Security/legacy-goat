@@ -1,0 +1,329 @@
+# Ground-truth manifest — one entry per injected vulnerability instance.
+# Populated during vuln injection on `main`; ground-truth.<profile>.sarif is generated from it.
+# main's app source carries no markers: `locations` (file, lines, anchor) is the only pointer to an
+# instance, and `notes` holds what the source no longer says. vulnerable's app files are main's
+# byte for byte, so these lines hold on both.
+# Entry shape is documented in README.md ("manifest.yaml entry shape").
+# The clean base carries no instances.
+schema_version: 1
+entries:
+  - id: LG-SQLI-001
+    cwe: 89
+    title: SQL injection in the single-query staff sign-on (SIGNON-BY-QUERY)
+    class: sql-injection
+    module: cobol
+    language: COBOL
+    sink: "EXEC SQL PREPARE DYNSTMT FROM :WS-DYNSQL (query text built by concatenating AQ-STAFF-ID)"
+    notes: "SIGNON-BY-QUERY folds the credential hash into the WHERE clause and concatenates staff_id into the statement text; a returned row signs the staff member on. staff_id TLR001'-- comments out the pw_hash predicate and signs on without a password. SIGNON-BY-LOOKUP binds staff_id and checks the hash in COBOL."
+    locations:
+      main: { file: cobol/staffauth.cbl, lines: "76-89", anchor: "EXEC SQL PREPARE DYNSTMT FROM :WS-DYNSQL" }
+    exploitability:
+      # config gate: the staff auth program reads SESSION_ROAMING (config.schema.json session_roaming).
+      baseline:   # session_roaming=off -> parameterized path runs; injectable path present but dead
+        status: unexploitable
+        gate: { config: "session_roaming=off" }
+      permissive: # session_roaming=on -> the dynamic concatenated query runs and is injectable
+        status: exploitable
+        gate: { config: "session_roaming=on" }
+        recipe: recipes/LG-SQLI-001.yaml
+
+  - id: LG-BIZ-001
+    cwe: 840
+    title: Negative-amount transfer reverses the money flow (missing positive-amount check)
+    class: business-logic
+    module: cobol
+    language: COBOL
+    sink: "COMPUTE WS-FROM-BAL = WS-FROM-BAL - WS-AMT with an unchecked signed WS-AMT"
+    notes: "WS-AMT is taken as-is with no positive-value check; a negative amount reverses the money flow (the debit becomes a credit), so a transfer from the caller's own account drains the counterparty."
+    locations:
+      main: { file: cobol/postxfer.cbl, lines: "85-86", anchor: "COMPUTE WS-AMT = FUNCTION NUMVAL(TR-AMOUNT)" }
+    fix: "reject WS-AMT <= 0 (e.g. after the NUMVAL compute) before validating/posting"
+    exploitability:
+      # Unconditional logic flaw: no config/data/state gate -> exploitable under every profile.
+      baseline:   { status: exploitable, recipe: recipes/LG-BIZ-001.yaml }
+      permissive: { status: exploitable, recipe: recipes/LG-BIZ-001.yaml }
+
+  - id: LG-AC-001
+    cwe: 862
+    title: Config-gated branch-scope bypass (IDOR) in the core post-transfer
+    class: broken-access-control
+    module: cobol
+    language: COBOL
+    sink: "CHECK-FROM branch-scope predicate guarded by home_branch_only"
+    notes: "With home_branch_only=off the object-level branch-scope check in CHECK-FROM is skipped, so a teller posts against any branch's accounts (broken access control / IDOR)."
+    locations:
+      main: { file: cobol/postxfer.cbl, lines: "166-169", anchor: "WHEN WS-HOME-BRANCH-ONLY(1:3) NOT = \"off\"" }
+    exploitability:
+      # config gate: postxfer reads HOME_BRANCH_ONLY (config.schema.json home_branch_only).
+      baseline:   # home_branch_only=on -> object-level check active; cross-branch is rejected
+        status: unexploitable
+        gate: { config: "home_branch_only=on" }
+      permissive: # home_branch_only=off -> check skipped; a teller posts on any branch's accounts
+        status: exploitable
+        gate: { config: "home_branch_only=off" }
+        recipe: recipes/LG-AC-001.yaml
+
+  - id: LG-CMDI-001
+    cwe: 78
+    title: OS command injection via the SAS report-export %SYSEXEC label
+    class: os-command-injection
+    module: sas
+    language: SAS
+    sink: "%sysexec echo archiving posting report to &export_label (label unquoted)"
+    notes: "&export_label is spliced unquoted into the %SYSEXEC command line, so a label like 'rpt; <cmd>' runs an OS command. The runtime is legacy-goat-runtimes/runtimes/sas/shim.py, which mirrors the mounted source by the marker `to &export_label;` (the fix quotes the label)."
+    locations:
+      main: { file: sas/postrpt.sas, lines: "71-72", anchor: "%sysexec echo archiving posting report to &export_label;" }
+    exploitability:
+      # config gate: the export %SYSEXEC only runs when report_archive=on (config.schema.json).
+      baseline:   # report_archive=off -> no shell; the label is inert
+        status: unexploitable
+        gate: { config: "report_archive=off" }
+      permissive: # report_archive=on -> the label is spliced into a shell command line
+        status: exploitable
+        gate: { config: "report_archive=on" }
+        recipe: recipes/LG-CMDI-001.yaml
+
+  - id: LG-AUTH-001
+    cwe: 384
+    title: Weak, forgeable self-describing session token (no entropy, no server-side session)
+    class: broken-authentication
+    module: pascal
+    language: Object Pascal
+    sink: "MintToken roaming path (EncodeRoamingToken) + ResolveSession trusting DecodeRoamingToken"
+    notes: "With session_roaming=on MintToken issues 'LG' + staff_id(10) + role code(1) + branch(4): no entropy, no signature, no expiry check against a store. ResolveSession decodes any such token that is not in the store, so a hand-built cookie (LGSUP0010000S0007) is an authenticated SUPERVISOR session with no login. With session_roaming=off tokens are 32 random alphanumerics and only store-issued tokens resolve."
+    locations:
+      main: { file: pascal/console.pas, lines: "413-449", anchor: "Result := EncodeRoamingToken(staffId, role, branch);" }
+      # the resolver half that trusts a forged token:
+      resolver: { file: pascal/console.pas, lines: "983-984", anchor: "Result := DecodeRoamingToken(token, sess)" }
+    exploitability:
+      # config gate: the console reads SESSION_ROAMING (config.schema.json session_roaming).
+      baseline:   # session_roaming=off -> 32-char high-entropy token; only store-issued tokens resolve
+        status: unexploitable
+        gate: { config: "session_roaming=off" }
+      permissive: # session_roaming=on -> tokens are self-describing and accepted without a login
+        status: exploitable
+        gate: { config: "session_roaming=on" }
+        recipe: recipes/LG-AUTH-001.yaml
+
+  - id: LG-NUM-001
+    cwe: 190
+    title: Integer overflow in the fee calculation (32-bit nint on a large amount)
+    class: numeric-overflow
+    module: fortran
+    language: Fortran
+    sink: "fee_cents = nint(amount * rate * 100.0d0)  -- default 32-bit integer rounding"
+    notes: "Fee cents are rounded with a default-kind nint (32-bit, max ~2.1e9); amount runs up to 1e13, so a large transfer overflows the rounding and the fee wraps to a wrong (often negative) value."
+    locations:
+      main: { file: fortran/riskfee.f90, lines: "31-32", anchor: "fee_cents = nint(amount * rate * 100.0d0)" }
+    fix: "use nint(..., kind=8) as amount_cents already does"
+    exploitability:
+      # data-gated by the amount (attacker-controlled), not config -> exploitable under every profile.
+      baseline:   { status: exploitable, gate: { data: "amount large enough to overflow int32 cents" }, recipe: recipes/LG-NUM-001.yaml }
+      permissive: { status: exploitable, gate: { data: "amount large enough to overflow int32 cents" }, recipe: recipes/LG-NUM-001.yaml }
+
+  - id: LG-INJ-001
+    cwe: 116
+    title: Improper output encoding of the reference into the GL posting response (JSON breakout)
+    class: improper-output-encoding
+    module: abap
+    language: ABAP
+    sink: "build_response CONCATENATE of a caller-supplied reference into the response JSON without escaping"
+    notes: "With preformatted_refs=on the reference is concatenated into the response JSON unescaped. A reference ending in a backslash escapes the closing quote build_response emits and breaks the response JSON. get_json_string stops at the first quote, so a quote cannot be injected; the trailing backslash is the breakout. The setting reaches the handler as the x-preformatted-refs header, which legacy-goat-runtimes/runtimes/abap/server.mjs sets from the environment, never from the caller."
+    locations:
+      main: { file: abap/zcl_gl_post.clas.abap, lines: "104-112", anchor: "lv_ref_out = lv_reference." }
+    fix: "always JSON-escape the reference (call escape_json_value unconditionally); the preformatted_refs=off path already does"
+    exploitability:
+      # config gate: the ICF handler reads preformatted_refs (threaded as the x-preformatted-refs header).
+      baseline:   # preformatted_refs=off -> reference is escaped; the response stays well-formed
+        status: unexploitable
+        gate: { config: "preformatted_refs=off" }
+      permissive: # preformatted_refs=on -> reference concatenated raw; a trailing backslash breaks the JSON
+        status: exploitable
+        gate: { config: "preformatted_refs=on" }
+        recipe: recipes/LG-INJ-001.yaml
+
+  - id: LG-PATH-001
+    cwe: 22
+    title: Path traversal in the console posting-receipt download endpoint
+    class: path-traversal
+    module: pascal
+    language: Object Pascal
+    sink: "HandleReceiptGet joins a caller-supplied name to the receipt dir with no sanitisation and opens it"
+    notes: "With receipt_subfolders=on the caller's name is joined to FReceiptDir as given, so ../ sequences walk out of the receipt dir and read any file the process can. With it off, ExtractFileName keeps the read inside the dir."
+    locations:
+      main: { file: pascal/console.pas, lines: "1274-1277", anchor: "fullPath := IncludeTrailingPathDelimiter(FReceiptDir) + name" }
+    fix: "reduce the name to a basename (ExtractFileName) before joining; the receipt_subfolders=off path already does"
+    exploitability:
+      # config gate: the console reads receipt_subfolders (config.schema.json).
+      baseline:   # receipt_subfolders=off -> name reduced to a basename; the read stays inside the dir
+        status: unexploitable
+        gate: { config: "receipt_subfolders=off" }
+      permissive: # receipt_subfolders=on -> ../ sequences escape the receipt dir and read arbitrary files
+        status: exploitable
+        gate: { config: "receipt_subfolders=on" }
+        recipe: recipes/LG-PATH-001.yaml
+
+  - id: LG-SECR-001
+    cwe: 760
+    title: Hardcoded, shared credential-hashing salt checked into source
+    class: hardcoded-secret
+    module: cobol
+    language: COBOL
+    sink: "PW-SALT PIC X(16) VALUE \"SALT\" in signon.cpy, used by LGHASH for every staff hash"
+    notes: "One shared, source-visible salt for every staff password hash, so the hashes are precomputable and the secret is recoverable from the repo. Static-only: no runtime trigger. The staff hashes in legacy-goat-runtimes/db/postgres/seed.sql are computed with it (padded to 16 bytes)."
+    detection: static   # no runtime reachability path; found by static/secret scanning, not a trigger
+    locations:
+      main: { file: cobol/signon.cpy, lines: "2", anchor: "VALUE \"SALT\"" }
+    fix: "use a per-record random salt stored alongside the hash instead of a single source-visible constant"
+    exploitability:
+      # Static weakness: present in source under every profile; graded `present` (not runtime-gated).
+      baseline:   { status: present }
+      permissive: { status: present }
+
+  - id: LG-LOG-001
+    cwe: 532
+    title: Cleartext password written to the process log by the console audit path
+    class: sensitive-data-logging
+    module: pascal
+    language: Object Pascal
+    sink: "HandleLoginPost WriteLn of 'password=' + password to StdErr on the signon_trace path"
+    notes: "With signon_trace=on HandleLoginPost writes the cleartext password to StdErr on every sign-on attempt, so anyone who can read the process log gets credentials."
+    locations:
+      main: { file: pascal/console.pas, lines: "1092-1095", anchor: "' password=' + password" }
+    fix: "log the actor and outcome only, never the credential; the signon_trace=off path already does"
+    exploitability:
+      # config gate: the console reads signon_trace (config.schema.json).
+      baseline:   # signon_trace=off -> only staff id + outcome logged; the password never appears
+        status: unexploitable
+        gate: { config: "signon_trace=off" }
+      permissive: # signon_trace=on -> the cleartext password is written to the log on every sign-on attempt
+        status: exploitable
+        gate: { config: "signon_trace=on" }
+        recipe: recipes/LG-LOG-001.yaml
+
+  - id: LG-SQLI-002
+    cwe: 89
+    title: SQL injection in the SAS report PROC SQL EXPLICIT pass-through (unvalidated as_of)
+    class: sql-injection
+    module: sas
+    language: SAS
+    sink: "as_of spliced into the `connection to postgres (... where posted_at <= '&as_of.')` pass-through block"
+    notes: "With as_of_dates=on the as_of contract check is skipped, so an unvalidated &as_of. is spliced into the CONNECTION TO pass-through block and shipped to Postgres verbatim: as_of = x' OR '1'='1 returns every LEDGER row past the transfer_id filter. The runtime is legacy-goat-runtimes/runtimes/sas/shim.py, which mirrors the mounted source by the marker `%upcase(&as_of_dates) ne ON`."
+    locations:
+      main: { file: sas/postrpt.sas, lines: "39-44", anchor: "%if %upcase(&as_of_dates) ne ON" }
+    fix: "keep the as_of contract validation unconditional (never skip it when as_of_dates is on)"
+    exploitability:
+      # config gate: the report job reads as_of_dates (config.schema.json).
+      baseline:   # as_of_dates=off -> as_of is contract-validated + quoted; injection rejected
+        status: unexploitable
+        gate: { config: "as_of_dates=off" }
+      permissive: # as_of_dates=on -> as_of validation/quoting skipped; pass-through is injectable
+        status: exploitable
+        gate: { config: "as_of_dates=on" }
+        recipe: recipes/LG-SQLI-002.yaml
+
+  - id: LG-SSRF-001
+    cwe: 918
+    title: Server-side request forgery in the console upstream-preview endpoint
+    class: server-side-request-forgery
+    module: pascal
+    language: Object Pascal
+    sink: "HandleFetchGet TFPHTTPClient.Get of a caller-supplied url with the host allowlist skipped"
+    notes: "With partner_preview=on /fetch fetches the caller's URL with no host allowlist, so the console issues requests to internal addresses on the caller's behalf (in-cluster services by name, link-local metadata). With it off only URLs with the gateway's scheme, host and port and no user info are fetched (SameOrigin parses the URL with the same URIParser the HTTP client uses, so http://gateway:8080@host/ is refused)."
+    locations:
+      main: { file: pascal/console.pas, lines: "1330-1338", anchor: "if not FPartnerPreview then" }
+    fix: "keep the gateway origin check (SameOrigin) unconditional (never fetch an arbitrary host)"
+    exploitability:
+      # config gate: the console reads partner_preview (config.schema.json).
+      baseline:   # partner_preview=off -> only the configured gateway url is fetchable; other hosts 403
+        status: unexploitable
+        gate: { config: "partner_preview=off" }
+      permissive: # partner_preview=on -> any url is fetched, so internal-only services are reachable
+        status: exploitable
+        gate: { config: "partner_preview=on" }
+        recipe: recipes/LG-SSRF-001.yaml
+
+  - id: LG-DLII-001
+    cwe: 943
+    title: DL/I SSA injection in the core transfer customer validation
+    class: dli-ssa-injection
+    module: cobol
+    language: COBOL
+    sink: "TR-REQUESTED-BY concatenated into the CUSTSEG SSA (CUSTSEG(CU-CUSTOMER-ID =<val>)) then CBLTDLI GU"
+    notes: "With alnum_customer_ids=on TR-REQUESTED-BY reaches the CUSTSEG SSA without the numeric check; a value like 0|CU-STATUS =ACTIVE adds an OR-connected qualification, so the GU matches any active customer and the customer-existence check is bypassed (the SSA equivalent of SQL injection)."
+    locations:
+      main: { file: cobol/postxfer.cbl, lines: "206-219", anchor: "STRING \"CUSTSEG(CU-CUSTOMER-ID =\"" }
+    fix: "reject a requested-by that is not a plain numeric customer id before building the SSA (the guard, unconditional)"
+    exploitability:
+      # config gate: postxfer reads alnum_customer_ids (config.schema.json).
+      baseline:   # alnum_customer_ids=off -> non-numeric requested-by rejected before the SSA is built
+        status: unexploitable
+        gate: { config: "alnum_customer_ids=off" }
+      permissive: # alnum_customer_ids=on -> raw requested-by injects an OR qualification; existence check bypassed
+        status: exploitable
+        gate: { config: "alnum_customer_ids=on" }
+        recipe: recipes/LG-DLII-001.yaml
+
+  - id: LG-MEM-001
+    cwe: 125
+    title: Out-of-bounds read of the settlement-tier table leaks an internal key
+    class: out-of-bounds-read
+    module: cobol
+    language: COBOL
+    sink: "MOVE WS-TIER-LABEL(WS-TIER-IDX) with WS-TIER-IDX up to 4 while the table OCCURS 3 (reads adjacent WS-INTERNAL-ROUTE)"
+    notes: "The tier table OCCURS 3 times but the amount-derived index reaches 4. WS-INTERNAL-ROUTE (STLMT-KEY-41Z9X!) is the next field in the same group, so with extended_tiers=on the unclamped subscript reads it into the reply's tier_label."
+    locations:
+      main: { file: cobol/postxfer.cbl, lines: "140-145", anchor: "MOVE WS-TIER-LABEL(WS-TIER-IDX) TO TP-TIER-LABEL" }
+    fix: "clamp the tier index to the table bound (1..3) before subscripting; the extended_tiers=off path already does"
+    exploitability:
+      # config gate: postxfer reads extended_tiers (config.schema.json). GnuCOBOL does no subscript
+      # bounds check by default, so an out-of-range index reads the contiguous adjacent field.
+      baseline:   # extended_tiers=off -> index clamped to the table bound; no OOB read
+        status: unexploitable
+        gate: { config: "extended_tiers=off" }
+      permissive: # extended_tiers=on -> a large amount yields index 4 -> reads the adjacent internal key
+        status: exploitable
+        gate: { config: "extended_tiers=on" }
+        recipe: recipes/LG-MEM-001.yaml
+
+  - id: LG-XXE-001
+    cwe: 611
+    title: XML external entity injection in the console settlement-advice import
+    class: xxe
+    module: pascal
+    language: Object Pascal
+    sink: "HandleImportPost TDOMParser.Parse of a caller-supplied XML advice (resolves external SYSTEM entities)"
+    notes: "The fcl-xml DOM parser resolves external SYSTEM entities whatever ExpandEntities says. With correspondent_advices=on an advice declaring <!ENTITY x SYSTEM \"file:///...\"> and using &x; in <memo> gets the file echoed back. With it off any inline DTD is rejected before parsing, and DisallowDoctype makes the parser refuse a document type after decoding (a UTF-16 advice hides <!DOCTYPE from the byte check)."
+    locations:
+      main: { file: pascal/console.pas, lines: "1387-1406", anchor: "if not FCorrespondentAdvices then" }
+    fix: "reject any inline DTD before parsing and set DisallowDoctype unconditionally; the correspondent_advices=off path already does both"
+    exploitability:
+      # config gate: the console reads correspondent_advices (config.schema.json).
+      baseline:   # correspondent_advices=off -> inline DTDs rejected, so no external entity can be declared
+        status: unexploitable
+        gate: { config: "correspondent_advices=off" }
+      permissive: # correspondent_advices=on -> the DTD is honoured; a SYSTEM entity reads a local file
+        status: exploitable
+        gate: { config: "correspondent_advices=on" }
+        recipe: recipes/LG-XXE-001.yaml
+
+  - id: LG-XSS-001
+    cwe: 79
+    title: Reflected XSS in the console sign-on notice banner
+    class: cross-site-scripting
+    module: pascal
+    language: Object Pascal
+    sink: "LoginPage renders the caller-supplied ?notice= into the HTML page without escaping (markup path)"
+    notes: "With rich_notices=on the ?notice= query parameter is placed into the sign-on page unescaped (reflected XSS). Server messages always take the escaped path."
+    locations:
+      main: { file: pascal/console.pas, lines: "597-598", anchor: "if markup then msgHtml := msg" }
+    fix: "always HtmlEscape the notice (never take the markup path); the rich_notices=off path already does"
+    exploitability:
+      # config gate: the console reads rich_notices (config.schema.json).
+      baseline:   # rich_notices=off -> the notice is HtmlEscape'd; markup is inert
+        status: unexploitable
+        gate: { config: "rich_notices=off" }
+      permissive: # rich_notices=on -> the notice is reflected raw, so injected script executes
+        status: exploitable
+        gate: { config: "rich_notices=on" }
+        recipe: recipes/LG-XSS-001.yaml

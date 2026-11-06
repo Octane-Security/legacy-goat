@@ -1,0 +1,11 @@
+# LG-NUM-001 — integer overflow in the fee calc. Data-gated by a large amount (any profile).
+preconditions:
+  - "amount large enough that amount*rate*100 exceeds int32 (~2.1e9 cents)"
+steps:
+  - call: "POST /compute-fee (Fortran service)"
+    body: { transfer_id: "TNUM01", amount: "90000000000.00", currency: "USD", account_type: "CHK", term_days: 0, rate_code: "STD" }
+    expect: "fee != 90000000.00 (the correct amount*0.001); the 32-bit nint overflows and wraps"
+observable: >
+  For a large CHK amount the returned fee is not amount*0.001 -- it wraps (often negative) because the
+  cents are rounded with a default 32-bit nint. With the kind=8 fix the fee is correct. No config gate:
+  exploitable whenever the amount is large enough (attacker-controlled).

@@ -1,0 +1,12 @@
+# LG-XSS-001 — reflected XSS in the console sign-on notice banner.
+# Config-gated by rich_notices (on under the permissive profile). No session needed (login page is public).
+preconditions:
+  - "rich_notices=on (the ?notice= param is reflected without escaping)"
+steps:
+  - call: "GET /login?notice=<script>alert(1)</script> (console)"
+    expect: "the returned HTML contains the <script> tag verbatim (unescaped), so it executes"
+observable: >
+  With rich_notices=on the sign-on page reflects the caller-supplied notice into the HTML without
+  escaping, so a notice containing <script>...</script> is returned verbatim and runs in the
+  operator's browser (reflected XSS). With the fix (HtmlEscape) the same input comes back as
+  &lt;script&gt;... and is inert. Exploitable only when rich_notices=on.

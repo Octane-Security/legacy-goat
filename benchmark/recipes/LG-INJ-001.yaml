@@ -1,0 +1,21 @@
+# LG-INJ-001 — improper output encoding of `reference` in the GL posting response.
+# Config-gated by preformatted_refs (on under the permissive profile).
+preconditions:
+  - "preformatted_refs=on (the ICF handler concatenates the reference into the response JSON raw)"
+steps:
+  - call: "POST /gl (ABAP ICF handler)"
+    raw_body: '{"reference":"X\\","lines":[{"account_id":"1000","direction":"D","amount":"1.00"},{"account_id":"2000","direction":"C","amount":"1.00"}]}'
+    note: >
+      The reference field value ends in a single backslash (raw bytes ...X\",...). The hand-rolled
+      extractor returns "X\" verbatim; nothing escapes it before it is concatenated into the
+      response.
+    expect: >
+      The response body is NOT well-formed JSON: the trailing backslash escapes the closing quote
+      build_response emits for the reference, so the string runs past its terminator and the
+      document cannot be parsed by the gateway.
+observable: >
+  With preformatted_refs=on the returned body fails a strict JSON parse (the reference's trailing
+  backslash escapes the closing quote and breaks the object), so a caller can corrupt or
+  manipulate the GL posting confirmation the payment gateway consumes. With the fix (unconditional
+  escape_json_value) the backslash is doubled, the body parses cleanly, and the reference round-trips
+  intact. Exploitable only when preformatted_refs=on.

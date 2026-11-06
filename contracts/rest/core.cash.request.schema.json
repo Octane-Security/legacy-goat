@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core.cash.request.schema.json",
+  "title": "Core teller cash (gateway -> COBOL)",
+  "description": "Marshals into CASH-REQUEST in copybook/core-ops.cpy. transfer_id is minted by the gateway.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transfer_id",
+    "account_id",
+    "action",
+    "amount",
+    "currency",
+    "actor"
+  ],
+  "properties": {
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    },
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "action": {
+      "$ref": "common.schema.json#/$defs/CashAction"
+    },
+    "amount": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "currency": {
+      "$ref": "common.schema.json#/$defs/Currency"
+    },
+    "actor": {
+      "$ref": "common.schema.json#/$defs/Actor"
+    }
+  }
+}

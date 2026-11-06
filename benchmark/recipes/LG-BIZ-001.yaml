@@ -1,0 +1,19 @@
+# LG-BIZ-001 — negative-amount transfer reverses the money flow. Unconditional (any profile).
+preconditions:
+  - "a valid teller session in the from-account's branch (0007)"
+  - "from_account owned/in-scope for the actor; to_account is the victim, same branch"
+steps:
+  - call: "POST /transfer"
+    headers: { X-Staff-Id: "TLR001", X-Role: "TELLER", X-Branch: "0007" }
+    body:
+      token: "<session token>"
+      from_account: "000000000042"   # attacker-controlled, in scope
+      to_account: "000000000043"     # victim
+      amount: "-100.00"              # negative
+      currency: "USD"
+      requested_by: "0000000007"
+    expect: "status POSTED; from_balance INCREASES and to_balance DECREASES"
+observable: >
+  A transfer with a negative amount is accepted (status=POSTED) and moves money backwards: the
+  from-account balance rises and the to-account balance falls, i.e. the initiator drains the
+  counterparty. A correct core rejects any amount <= 0. This holds under every profile (no gate).
