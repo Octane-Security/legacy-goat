@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "risk.compute-fee.request.schema.json",
+  "title": "Risk compute-fee request (gateway -> Fortran adapter)",
+  "description": "Marshals to RISK-FEE-REQUEST in records/fortran-fee-io.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["transfer_id", "amount", "currency", "account_type", "term_days", "rate_code"],
+  "properties": {
+    "transfer_id": { "$ref": "common.schema.json#/$defs/TransferId" },
+    "amount": { "$ref": "common.schema.json#/$defs/Money" },
+    "currency": { "$ref": "common.schema.json#/$defs/Currency" },
+    "account_type": { "$ref": "common.schema.json#/$defs/AccountType" },
+    "term_days": { "type": "integer", "minimum": 0, "maximum": 99999 },
+    "rate_code": { "type": "string", "pattern": "^[A-Z0-9]{1,4}$" }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "risk.compute-fee.response.schema.json",
+  "title": "Risk compute-fee response (Fortran adapter -> gateway)",
+  "description": "Marshals from RISK-FEE-REPLY in records/fortran-fee-io.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["transfer_id", "fee", "interest", "net_amount", "status"],
+  "properties": {
+    "transfer_id": { "$ref": "common.schema.json#/$defs/TransferId" },
+    "fee": { "$ref": "common.schema.json#/$defs/Money" },
+    "interest": { "$ref": "common.schema.json#/$defs/Money" },
+    "net_amount": { "$ref": "common.schema.json#/$defs/Money" },
+    "status": { "type": "string", "enum": ["OK", "RANGEERR"] }
+  }
+}

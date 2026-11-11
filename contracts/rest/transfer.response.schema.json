@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transfer.response.schema.json",
+  "title": "Transfer response (gateway -> console)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transfer_id",
+    "status"
+  ],
+  "properties": {
+    "transfer_id": {
+      "$ref": "common.schema.json#/$defs/TransferId"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/TransferStatus"
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    },
+    "from_balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "to_balance": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "fee": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "interest": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "net_amount": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "report": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/PostingLine"
+      }
+    },
+    "gl_doc_id": {
+      "$ref": "common.schema.json#/$defs/GlDocId"
+    }
+  }
+}

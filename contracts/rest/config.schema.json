@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config.schema.json",
+  "title": "Deployment settings",
+  "description": "Settings the modules read from their environment at start. On/off settings take \"on\" or \"off\"; unset means the default.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "require_approval_over",
+    "report_archive",
+    "session_roaming",
+    "session_ttl"
+  ],
+  "properties": {
+    "require_approval_over": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "report_archive": {
+      "type": "boolean"
+    },
+    "session_roaming": {
+      "type": "boolean"
+    },
+    "session_ttl": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "home_branch_only": {
+      "type": "boolean",
+      "default": true
+    },
+    "alnum_customer_ids": {
+      "type": "boolean",
+      "default": false
+    },
+    "extended_tiers": {
+      "type": "boolean",
+      "default": false
+    },
+    "as_of_dates": {
+      "type": "boolean",
+      "default": false
+    },
+    "preformatted_refs": {
+      "type": "boolean",
+      "default": false
+    },
+    "receipt_subfolders": {
+      "type": "boolean",
+      "default": false
+    },
+    "signon_trace": {
+      "type": "boolean",
+      "default": false
+    },
+    "partner_preview": {
+      "type": "boolean",
+      "default": false
+    },
+    "correspondent_advices": {
+      "type": "boolean",
+      "default": false
+    },
+    "rich_notices": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

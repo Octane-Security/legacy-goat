@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "report.posting.request.schema.json",
+  "title": "Posting report request (gateway -> SAS adapter)",
+  "description": "Marshals to REPORT-REQUEST in records/sas-report-io.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["transfer_id", "report_type", "as_of"],
+  "properties": {
+    "transfer_id": { "$ref": "common.schema.json#/$defs/TransferId" },
+    "report_type": { "type": "string", "enum": ["POSTING", "SETTLE"] },
+    "as_of": { "$ref": "common.schema.json#/$defs/Timestamp" }
+  }
+}

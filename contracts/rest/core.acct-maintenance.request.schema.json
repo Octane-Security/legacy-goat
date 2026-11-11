@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core.acct-maintenance.request.schema.json",
+  "title": "Core account maintenance (gateway -> COBOL)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "account_id",
+    "action",
+    "actor"
+  ],
+  "properties": {
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "action": {
+      "$ref": "common.schema.json#/$defs/MaintenanceAction"
+    },
+    "actor": {
+      "$ref": "common.schema.json#/$defs/Actor"
+    }
+  }
+}

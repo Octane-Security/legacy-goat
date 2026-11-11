@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gl.post-document.request.schema.json",
+  "title": "GL document post request (gateway -> ABAP ICF service)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["reference", "currency", "posting_date", "lines"],
+  "properties": {
+    "reference": { "$ref": "common.schema.json#/$defs/TransferId" },
+    "currency": { "$ref": "common.schema.json#/$defs/Currency" },
+    "posting_date": { "$ref": "common.schema.json#/$defs/Timestamp" },
+    "lines": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "common.schema.json#/$defs/GlLine" }
+    }
+  }
+}
