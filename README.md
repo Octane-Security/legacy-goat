@@ -80,8 +80,8 @@ This repository holds the application source. Its companion,
 [legacy-goat-runtimes](https://github.com/Octane-Security/legacy-goat-runtimes), runs it: it builds
 a runtime image for each language, compiles this source as the containers start, and brings up the
 gateway, the databases, the test suites and the exploit proofs. You need Docker with Compose, or
-Podman with `podman compose`, plus `curl`, `python3` and [uv](https://docs.astral.sh/uv/) for the
-tests. Check out both repositories side by side:
+Podman with `podman compose`, plus [uv](https://docs.astral.sh/uv/), which runs the tests and
+exploit proofs. Check out both repositories side by side:
 
 ```sh
 git clone https://github.com/Octane-Security/legacy-goat.git
@@ -114,17 +114,8 @@ tooling/     builds and checks the vulnerable and fixed branches (main only)
 
 ## Contributing
 
-Octane Security maintains Legacy Goat and its runtimes, and we welcome pull requests from the
-security community. New flaws, languages and banking features, sharper exploit proofs, and fixes to
-anything that is broken all make Legacy Goat a better benchmark for everyone. If you find a flaw we
-did not plant, send a pull request that adds it to the answer key or fixes it.
-
-Open pull requests against `main`; CI rebuilds `vulnerable` and `fixed` from it. The application
-source has to stay blind, with no comment, name or string that points at a flaw. A new flaw needs an
-answer-key entry (see [benchmark/README.md](benchmark/README.md)), a fix in
-[tooling/fix_apply.py](tooling/fix_apply.py), and a proof under `triggers/` in legacy-goat-runtimes.
-Run `python3 tooling/test_gate.py` before you push; [tooling/README.md](tooling/README.md) explains
-what it checks.
+We welcome issues and pull requests from the security community. [CONTRIBUTING.md](https://github.com/Octane-Security/legacy-goat/blob/main/.github/CONTRIBUTING.md) explains how to contribute to
+Legacy Goat and its runtimes: new flaws, new languages, fixes and exploit proofs.
 
 ## License
 
