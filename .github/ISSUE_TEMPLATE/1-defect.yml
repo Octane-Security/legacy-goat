@@ -1,0 +1,103 @@
+name: Defect in the application
+description: A flaw or bug in the application that the answer key does not list.
+title: "Defect: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for a real flaw or bug in the application source that is not one of the planted
+        instances in `benchmark/manifest.yaml`. If a planted instance's grade, location or recipe is
+        wrong, use **Answer key correction** instead.
+
+        By default, a defect the answer key doesn't list gets fixed, because a flaw left on both blind
+        branches makes `fixed` a flawed negative control. Propose adding it to the answer key instead
+        only when it is realistic, worth grading, and can be gated by a setting.
+
+        Reproduce it only against your own local copy of the
+        [legacy-goat-runtimes](https://github.com/Octane-Security/legacy-goat-runtimes) harness.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What is wrong
+      description: The defect in a few sentences. Name the function or routine and what it does wrong.
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Where
+      description: File and line range on `main`, and the commit you checked.
+      placeholder: "path/to/file L120-134 at <commit>"
+    validations:
+      required: true
+  - type: dropdown
+    id: position
+    attributes:
+      label: Lowest attacker position that reaches it
+      description: "As defined in legacy-goat-runtimes `docs/attacker-position.md`."
+      options:
+        - "P0: unauthenticated user of the console"
+        - "P1: signed-on staff member using the console"
+        - "P2: direct network access to the gateway"
+        - "P3: direct network access to a module service"
+        - "Not reachable by an attacker (a correctness bug)"
+    validations:
+      required: true
+  - type: checkboxes
+    id: profiles
+    attributes:
+      label: Profiles under which it shows
+      options:
+        - label: baseline
+        - label: permissive
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: |
+        Against the harness: the profile and branch you ran (`make up-build APP_PROFILE=... APP_BRANCH=...`),
+        the request or steps (curl is fine), and what came back.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Who or what is affected, and how. If only the caller's own request or session is affected, say so.
+    validations:
+      required: true
+  - type: dropdown
+    id: handling
+    attributes:
+      label: Proposed handling
+      options:
+        - Fix it in the application
+        - Add it to the answer key as a planted flaw (explain why in the suggested fix)
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix
+      description: How you would fix it, and the regression test that would prove it stays fixed.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: It is not one of the planted instances in `benchmark/manifest.yaml` on `main`.
+          required: true
+        - label: I searched the existing issues and pull requests.
+          required: true
+        - label: I reproduced it on current `main` through the legacy-goat-runtimes harness.
+          required: true
+        - label: I tested only against my own local copy of the harness.
+          required: true

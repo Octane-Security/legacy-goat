@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Problem with the runtime harness, a test or an exploit proof
+    url: https://github.com/Octane-Security/legacy-goat-runtimes/issues/new/choose
+    about: Runtime images, adapters, the gateway, the databases, the test suites and the per-flaw triggers live in legacy-goat-runtimes.

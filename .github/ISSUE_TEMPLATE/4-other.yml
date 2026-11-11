@@ -1,0 +1,30 @@
+name: Tooling, branch generation or documentation
+description: A problem or improvement in tooling/, the blind-branch generator, CI or the documentation.
+title: ""
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What and where
+      description: The problem or improvement, and the files it concerns.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it matters
+    validations:
+      required: true
+  - type: textarea
+    id: blind
+    attributes:
+      label: Effect on the blind branches
+      description: Whether the generated `vulnerable` and `fixed` trees would change, and how.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched the existing issues and pull requests.
+          required: true

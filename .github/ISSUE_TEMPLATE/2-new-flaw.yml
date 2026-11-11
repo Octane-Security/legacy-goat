@@ -1,0 +1,99 @@
+name: New planted flaw
+description: Propose a new flaw for the benchmark, before you build it.
+title: "New flaw: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A new planted flaw spans both repositories. In legacy-goat it needs the code, an entry in
+        `benchmark/manifest.yaml`, a recipe in `benchmark/recipes/`, and a fix in `tooling/fix_apply.py`.
+        In legacy-goat-runtimes it needs a trigger in `triggers/`, and a row in
+        `docs/attacker-position.md`. [benchmark/README.md](https://github.com/Octane-Security/legacy-goat/blob/main/benchmark/README.md) explains the
+        exploitability model. Agree on the proposal here first, so nobody builds a flaw that won't be merged.
+  - type: input
+    id: class
+    attributes:
+      label: Class and CWE
+      placeholder: "LDAP injection, CWE-90"
+    validations:
+      required: true
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      options:
+        - COBOL core
+        - Fortran fee service
+        - Object Pascal console
+        - SAS report service
+        - ABAP GL service
+        - A new module or language (describe it below)
+    validations:
+      required: true
+  - type: textarea
+    id: feature
+    attributes:
+      label: The feature it lives in
+      description: The banking feature the flawed code implements. Any new setting is named after that feature, never after the flaw.
+    validations:
+      required: true
+  - type: textarea
+    id: sink
+    attributes:
+      label: Sink and construct
+      description: The construct that makes it exploitable, and the input that reaches it.
+    validations:
+      required: true
+  - type: textarea
+    id: grades
+    attributes:
+      label: Gate and grades
+      description: |
+        What flips it between exploitable and unexploitable: a setting, seeded data, or a multi-step state.
+        Give its grade under `baseline` and under `permissive`.
+    validations:
+      required: true
+  - type: dropdown
+    id: position
+    attributes:
+      label: Lowest attacker position that reaches it
+      options:
+        - "P0: unauthenticated user of the console"
+        - "P1: signed-on staff member using the console"
+        - "P2: direct network access to the gateway"
+        - "P3: direct network access to a module service"
+    validations:
+      required: true
+  - type: textarea
+    id: proof
+    attributes:
+      label: Proof outline
+      description: The trigger's steps and the observable that proves exploitation, and how the trigger stays inert on `fixed` and under the other profile.
+    validations:
+      required: true
+  - type: textarea
+    id: realism
+    attributes:
+      label: Why it belongs in the benchmark
+      description: Why this flaw is realistic for this kind of application, and what reachability question it adds that the existing instances don't.
+    validations:
+      required: true
+  - type: textarea
+    id: blind
+    attributes:
+      label: Keeping the source blind
+      description: How the names, strings and comments will describe the application only, with no hint of the flaw.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I checked `benchmark/taxonomy.md` and `benchmark/manifest.yaml` for an existing instance of this class in this module.
+          required: true
+        - label: I will provide the manifest entry, recipe, fix and trigger, and the attacker-position row.
+          required: true
+        - label: I offer this contribution under the GNU GPL, version 3.
+          required: true

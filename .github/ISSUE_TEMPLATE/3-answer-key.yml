@@ -1,0 +1,58 @@
+name: Answer key correction
+description: A planted instance's grade, location, gate, notes or recipe is wrong.
+title: "Answer key: "
+labels: ["bug"]
+body:
+  - type: input
+    id: instance
+    attributes:
+      label: Instance id
+      placeholder: "LG-SQLI-001"
+    validations:
+      required: true
+  - type: dropdown
+    id: part
+    attributes:
+      label: What is wrong
+      multiple: true
+      options:
+        - Grade under baseline
+        - Grade under permissive
+        - Location (file, lines or anchor)
+        - Gate
+        - Notes or fix description
+        - Recipe
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What the answer key says now, and what is actually true.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: |
+        Trigger or harness output under each affected profile (`make verify APP_PROFILE=...`), or a code
+        reference on `main` that shows the entry is wrong.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Proposed correction
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I checked the entry against current `main`.
+          required: true
+        - label: I searched the existing issues and pull requests.
+          required: true
