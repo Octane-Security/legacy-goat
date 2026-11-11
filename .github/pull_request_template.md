@@ -37,7 +37,8 @@ Closes #
 - [ ] The application source stays blind: no instance ids, CWE or CVE tokens, path labels, attack samples or notes on what a construct does wrong, in any name, string, comment, document or file name. Any new setting is named after its feature.
 - [ ] `python3 tooling/test_gate.py` passes.
 - [ ] `tooling/gen-blind.sh vulnerable <dir>` and `tooling/gen-blind.sh fixed <dir>` build, and both trees pass `tooling/clue-scan.sh`.
-- [ ] In legacy-goat-runtimes, `make verify APP_PROFILE=baseline` and `make verify APP_PROFILE=permissive` pass with `APP_SRC` set to each generated tree: triggers fire exactly where the answer key grades their instance exploitable on `vulnerable`, and stay inert on `fixed`.
+- [ ] In legacy-goat-runtimes, `make verify APP_PROFILE=baseline` and `make verify APP_PROFILE=permissive` pass with `APP_SRC` set to the generated `vulnerable` tree: every trigger fires exactly where the answer key grades its instance exploitable.
+- [ ] With `APP_SRC` set to the generated `fixed` tree, `make run-integration` passes under both profiles, and no trigger fires (`for t in triggers/LG-*.sh; do "$t" >/dev/null 2>&1 && echo "fired: $t"; done` prints nothing).
 - [ ] `make check-alignment` passes against `main` and against the generated `vulnerable` tree. If a located file's lines moved, the manifest's `lines` and the ground truth (`make ground-truth`) are updated here.
 - [ ] It changes only what it needs to. If it touches a planted instance's construct, manifest entry or trigger, the description says why.
 - [ ] I offer this contribution under the GNU GPL, version 3. It contains no secrets or personal data, and any image is stripped of metadata.
