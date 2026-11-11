@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core.inquiry.request.schema.json",
+  "title": "Core account inquiry (gateway -> COBOL)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "account_id",
+    "actor"
+  ],
+  "properties": {
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "actor": {
+      "$ref": "common.schema.json#/$defs/Actor"
+    }
+  }
+}

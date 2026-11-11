@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core.acct-maintenance.response.schema.json",
+  "title": "Core account maintenance response (COBOL adapter -> gateway)",
+  "description": "Marshals from MAINT-REPLY in copybook/core-ops.cpy. status is the account's status after the request.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "account_id",
+    "result"
+  ],
+  "properties": {
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "result": {
+      "$ref": "common.schema.json#/$defs/OpResult"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/AccountStatus"
+    },
+    "reason": {
+      "$ref": "common.schema.json#/$defs/Description"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  // abaplint config for the ABAP module. This directory is the abaplint
+  // project root. Targets the ABAP 7.02 subset per ../coding-style.md.
+  "global": {
+    "files": "/**/*.*"
+  },
+  "dependencies": [],
+  "syntax": {
+    "version": "v702",
+    "errorNamespace": "^(Y|Z)"
+  },
+  "rules": {}
+}

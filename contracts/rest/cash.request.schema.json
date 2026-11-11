@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cash.request.schema.json",
+  "title": "Teller cash deposit or withdrawal (console -> gateway)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "token",
+    "account_id",
+    "action",
+    "amount",
+    "currency"
+  ],
+  "properties": {
+    "token": {
+      "$ref": "common.schema.json#/$defs/Token"
+    },
+    "account_id": {
+      "$ref": "common.schema.json#/$defs/AccountId"
+    },
+    "action": {
+      "$ref": "common.schema.json#/$defs/CashAction"
+    },
+    "amount": {
+      "$ref": "common.schema.json#/$defs/Money"
+    },
+    "currency": {
+      "$ref": "common.schema.json#/$defs/Currency"
+    }
+  }
+}

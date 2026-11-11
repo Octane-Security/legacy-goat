@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "report.posting.response.schema.json",
+  "title": "Posting report response (SAS adapter -> gateway)",
+  "description": "Rows assembled from REPORT-ROW in records/sas-report-io.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["transfer_id", "report_type", "rows"],
+  "properties": {
+    "transfer_id": { "$ref": "common.schema.json#/$defs/TransferId" },
+    "report_type": { "type": "string", "enum": ["POSTING", "SETTLE"] },
+    "rows": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/PostingLine" }
+    }
+  }
+}

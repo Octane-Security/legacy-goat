@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "staff.authenticate.request.schema.json",
+  "title": "Authenticate staff (gateway -> COBOL)",
+  "description": "COBOL verifies the credential against STAFF.pw_hash and returns role + branch.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "staff_id",
+    "password"
+  ],
+  "properties": {
+    "staff_id": {
+      "$ref": "common.schema.json#/$defs/StaffId"
+    },
+    "password": {
+      "$ref": "common.schema.json#/$defs/Password"
+    }
+  }
+}
