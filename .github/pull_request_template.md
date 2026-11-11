@@ -1,7 +1,7 @@
 <!--
 Thanks for contributing. Fill in every section; delete the checklists that don't apply to your type
 of change. A checked box needs its evidence below it: the command, the commit it ran against, and
-the summary lines of its output. See the Contributing section of the README.
+the summary lines of its output. See https://github.com/Octane-Security/legacy-goat/blob/main/.github/CONTRIBUTING.md.
 -->
 
 ## Linked issue
