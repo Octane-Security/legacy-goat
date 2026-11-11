@@ -302,11 +302,44 @@ CLASS zcl_gl_post IMPLEMENTATION.
   METHOD escape_json_value.
 
     " JSON string escaping: backslash first (so the added escapes are not doubled),
-    " then the double quote.
+    " then the double quote, then the control characters U+0000 to U+001F, which a
+    " JSON string may not hold as they are. Backspace, form feed, line feed, carriage
+    " return and tab get their short escapes; the rest are written as \u00XX.
+
+    DATA lv_code   TYPE i.
+    DATA lv_char   TYPE c LENGTH 1.
+    DATA lv_cr     TYPE c LENGTH 1.
+    DATA lv_escape TYPE string.
+    DATA lv_digits TYPE string VALUE '0123456789abcdef'.
+    DATA lv_high   TYPE i.
+    DATA lv_low    TYPE i.
 
     rv_out = iv_in.
     REPLACE ALL OCCURRENCES OF '\' IN rv_out WITH '\\'.
     REPLACE ALL OCCURRENCES OF '"' IN rv_out WITH '\"'.
+
+    lv_cr = cl_abap_char_utilities=>cr_lf(1).
+
+    DO 32 TIMES.
+      lv_code = sy-index - 1.
+      lv_char = cl_abap_conv_in_ce=>uccpi( lv_code ).
+      IF lv_char = cl_abap_char_utilities=>backspace.
+        lv_escape = '\b'.
+      ELSEIF lv_char = cl_abap_char_utilities=>form_feed.
+        lv_escape = '\f'.
+      ELSEIF lv_char = cl_abap_char_utilities=>newline.
+        lv_escape = '\n'.
+      ELSEIF lv_char = lv_cr.
+        lv_escape = '\r'.
+      ELSEIF lv_char = cl_abap_char_utilities=>horizontal_tab.
+        lv_escape = '\t'.
+      ELSE.
+        lv_high = lv_code DIV 16.
+        lv_low = lv_code MOD 16.
+        CONCATENATE '\u00' lv_digits+lv_high(1) lv_digits+lv_low(1) INTO lv_escape.
+      ENDIF.
+      REPLACE ALL OCCURRENCES OF lv_char IN rv_out WITH lv_escape.
+    ENDDO.
 
   ENDMETHOD.
 
